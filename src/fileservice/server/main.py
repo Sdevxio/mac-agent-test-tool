@@ -3,7 +3,7 @@ import signal
 import sys
 from typing import Optional
 
-from .server import FileServer
+from fileservice.server import FileServer
 
 # Configure logging
 logging.basicConfig(
