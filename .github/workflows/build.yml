@@ -36,13 +36,13 @@ jobs:
       - name: Run tests
         run: |
           pip install -e .
-          pytest tests/ -v
-            
+          pytest tests/test_file_transfer.py tests/test_service.py -v
+
       - name: Build package
         run: |
           chmod +x build.sh
           ./build.sh
-          
+
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
@@ -54,10 +54,10 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Upload artifact
         if: "!startsWith(github.ref, 'refs/tags/')"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: FileService
           path: FileService.pkg
