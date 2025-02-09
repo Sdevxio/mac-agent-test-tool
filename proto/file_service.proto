@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package fileservice;
+
+// File Service definition
+service FileService {
+    // Check if a file exists on the server
+    rpc IsFileExists(FileRequest) returns (FileExistsResponse) {}
+
+    // Get file contents from server
+    rpc GetFileContents(FileRequest) returns (stream FileChunkResponse) {}
+
+    // Transfer file from server to client
+    rpc TransferFile(FileRequest) returns (stream FileChunkResponse) {}
+}
+
+// Basic file request message
+message FileRequest {
+    string file_path = 1;            // Path to the file
+    uint32 chunk_size = 2;           // Optional: size of chunks for streaming (in bytes)
+    bool include_metadata = 3;       // Whether to include file metadata
+}
+
+// Response for file existence check
+message FileExistsResponse {
+    bool exists = 1;                 // Whether the file exists
+    string error = 2;                // Error message if any
+    FileMetadata metadata = 3;       // File metadata if requested and exists
+}
+
+// File metadata
+message FileMetadata {
+    uint64 size = 1;                 // File size in bytes
+    string mime_type = 2;            // MIME type if detectable
+    int64 modified_time = 3;         // Last modified timestamp
+    string permissions = 4;          // File permissions in string format
+}
+
+// Chunked file response
+message FileChunkResponse {
+    bytes content = 1;               // Chunk content
+    uint64 offset = 2;              // Offset in the file
+    bool is_last = 3;               // Whether this is the last chunk
+    string error = 4;                // Error message if any
+    FileMetadata metadata = 5;      // File metadata (sent only in first chunk)
+    float progress = 6;             // Transfer progress percentage (0-100)
+}
