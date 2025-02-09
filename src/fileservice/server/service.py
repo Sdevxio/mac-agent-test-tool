@@ -140,7 +140,7 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
 
             return pb2.FileExistsResponse(
                 exists=exists,
-                metadata=metadata
+                metadata=metadata if exists else None
             )
 
         except Exception as e:
@@ -148,7 +148,8 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
             logger.error(error_msg)
             return pb2.FileExistsResponse(
                 exists=False,
-                error=error_msg
+                error=error_msg,
+                metadata=None
             )
 
     def GetFileContents(
@@ -254,11 +255,14 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
                     total_sent += len(chunk)
                     progress = (total_sent / file_size) * 100 if file_size > 0 else 100
 
+                    # Only send metadata with first chunk
+                    current_metadata = metadata if total_sent == len(chunk) else None
+
                     yield pb2.FileChunkResponse(
                         content=chunk,
                         offset=total_sent,
                         is_last=False,
-                        metadata=metadata if total_sent == len(chunk) else None,  # Send metadata only in first chunk
+                        metadata=current_metadata,
                         progress=progress
                     )
 

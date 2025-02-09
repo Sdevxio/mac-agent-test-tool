@@ -26,7 +26,7 @@ class PortManager:
         """Get the currently assigned port."""
         return self._current_port
 
-    def is_port_available(self, port: int) -> bool:
+    def is_port_available(self, port: Optional[int]) -> bool:
         """
         Check if a specific port is available.
 
@@ -36,6 +36,9 @@ class PortManager:
         Returns:
             bool: True if port is available, False otherwise
         """
+        if port is None:
+            return False
+
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind(('localhost', port))
