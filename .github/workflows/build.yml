@@ -22,8 +22,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
-          
+          pip install pytest grpcio-testing
+
       - name: Generate Proto files
         run: |
           python -m grpc_tools.protoc \
@@ -31,10 +31,14 @@ jobs:
             --python_out=src/fileservice \
             --grpc_python_out=src/fileservice \
             proto/file_service.proto
-            
+
+      - name: Install package in development mode
+        run: |
+          pip install -e .
+
       - name: Run tests
         run: |
-          pytest tests/
+          pytest tests/ -v
 
   build:
     needs: test
