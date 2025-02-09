@@ -1,6 +1,6 @@
-import os
 import logging
 import mimetypes
+import os
 from pathlib import Path
 from typing import Optional, Iterator, BinaryIO
 
@@ -112,49 +112,6 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
         except Exception as e:
             logger.error(f"Error getting metadata for {file_path}: {e}")
             return None
-
-
-    def IsFileExists(
-            self,
-            request: pb2.FileRequest,
-            context: grpc.ServicerContext
-    ) -> pb2.FileExistsResponse:
-        """
-        Check if a file exists and optionally return its metadata.
-
-        Args:
-            request: FileRequest containing file path and options
-            context: gRPC servicer context
-
-        Returns:
-            FileExistsResponse with existence status and optional metadata
-        """
-        try:
-            file_path = request.file_path
-            logger.info(f"Checking existence of file: {file_path}")
-
-            exists = os.path.exists(file_path)
-
-            # Only get metadata if file exists and metadata is requested
-            metadata = None
-
-            if exists and request.include_metadata:
-                metadata = self._get_file_metadata(file_path)
-
-            return pb2.FileExistsResponse(
-                exists=exists,
-                metadata=metadata,
-                error=""
-            )
-
-        except Exception as e:
-            error_msg = f"Error checking file existence: {str(e)}"
-            logger.error(error_msg)
-            return pb2.FileExistsResponse(
-                exists=False,
-                error=error_msg,
-                metadata=None
-            )
 
     def GetFileContents(
             self,
@@ -285,6 +242,40 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
                 error=error_msg,
                 is_last=True,
                 metadata=None
+            )
+
+    def IsFileExists(
+            self,
+            request: pb2.FileRequest,
+            context: grpc.ServicerContext
+    ) -> pb2.FileExistsResponse:
+        """
+        Check if a file exists and optionally return its metadata.
+
+        Args:
+            request: FileRequest containing file path and options
+            context: gRPC servicer context
+
+        Returns:
+            FileExistsResponse with existence status and optional metadata
+        """
+        try:
+            file_path = request.file_path
+            exists = os.path.exists(file_path)
+
+            return pb2.FileExistsResponse(
+                exists=exists,
+                metadata=self._get_file_metadata(file_path) if exists and request.include_metadata else None,
+                error=""
+            )
+
+        except Exception as e:
+            error_msg = f"Error checking file existence: {str(e)}"
+            logger.error(error_msg)
+            return pb2.FileExistsResponse(
+                exists=False,
+                metadata=None,
+                error=error_msg
             )
 
     def _optimize_chunk_size(self, file_size: int, requested_size: int = None) -> int:
