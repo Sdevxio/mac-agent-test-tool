@@ -190,7 +190,8 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
             if not is_valid:
                 yield pb2.FileChunkResponse(
                     error=error_msg,
-                    is_last=True
+                    is_last=True,
+                    metadata=None
                 )
                 return
 
@@ -217,13 +218,16 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
                     total_sent += len(chunk)
                     progress = (total_sent / file_size) * 100 if file_size > 0 else 100
 
-                    yield pb2.FileChunkResponse(
+                    response = pb2.FileChunkResponse(
                         content=chunk,
                         offset=total_sent,
                         is_last=False,
-                        metadata=metadata if first_chunk else None,
-                        progress=progress
+                        progress=progress,
+                        metadata=None
                     )
+                    if first_chunk and metadata:
+                        response.metadata.CopyFrom(metadata)
+                    yield response
                     first_chunk = False
 
                 # Send final chunk to indicate completion
@@ -262,10 +266,13 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
         try:
             file_path = request.file_path
             exists = os.path.exists(file_path)
+            metadata = None
+            if exists and request.include_metadata:
+                metadata = self._get_file_metadata(file_path)
 
             return pb2.FileExistsResponse(
                 exists=exists,
-                metadata=self._get_file_metadata(file_path) if exists and request.include_metadata else None,
+                metadata=metadata,
                 error=""
             )
 
