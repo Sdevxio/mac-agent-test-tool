@@ -2,58 +2,29 @@ name: Build and Release
 
 on:
   push:
+    branches: [ main ]
     tags:
-      - 'v*'  # Trigger on version tags
+      - 'v*'
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
-  test:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip'
-          
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest grpcio-testing
-
-      - name: Generate Proto files
-        run: |
-          python generate_protos.py
-
-      - name: Install package in development mode
-        run: |
-          pip install -e .
-
-      - name: Run tests
-        run: |
-          pytest tests/ -v
-
   build:
-    needs: test
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
-          
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install py2app
-          
+          pip install pytest py2app
+
       - name: Generate Proto files
         run: |
           python -m grpc_tools.protoc \
@@ -61,6 +32,11 @@ jobs:
             --python_out=src/fileservice \
             --grpc_python_out=src/fileservice \
             proto/file_service.proto
+
+      - name: Run tests
+        run: |
+          pip install -e .
+          pytest tests/ -v
             
       - name: Build package
         run: |

@@ -230,14 +230,14 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
                     yield response
                     first_chunk = False
 
-                # Send final chunk to indicate completion
-                yield pb2.FileChunkResponse(
-                    content=b"",
-                    offset=total_sent,
-                    is_last=True,
-                    metadata=None,
-                    progress=100.0
-                )
+                    yield pb2.FileChunkResponse(
+                        content=chunk,
+                        offset=total_sent,
+                        is_last=False,
+                        progress=progress,
+                        metadata=metadata if first_chunk else None
+                    )
+                    first_chunk = False
 
         except Exception as e:
             error_msg = f"Error transferring file: {str(e)}"
@@ -266,14 +266,10 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
         try:
             file_path = request.file_path
             exists = os.path.exists(file_path)
-            metadata = None
-            if exists and request.include_metadata:
-                metadata = self._get_file_metadata(file_path)
-
             return pb2.FileExistsResponse(
                 exists=exists,
-                metadata=metadata,
-                error=""
+                error="",
+                metadata=None  # Always return None for non-existent files
             )
 
         except Exception as e:
@@ -281,8 +277,8 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
             logger.error(error_msg)
             return pb2.FileExistsResponse(
                 exists=False,
-                metadata=None,
-                error=error_msg
+                error=error_msg,
+                metadata=None
             )
 
     def _optimize_chunk_size(self, file_size: int, requested_size: int = None) -> int:
