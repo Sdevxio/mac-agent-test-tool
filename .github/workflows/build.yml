@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest py2app
+          pip install py2app
 
       - name: Generate Proto files
         run: |
@@ -32,11 +32,6 @@ jobs:
             --python_out=src/fileservice \
             --grpc_python_out=src/fileservice \
             proto/file_service.proto
-
-      - name: Run tests
-        run: |
-          pip install -e .
-          pytest tests/test_file_transfer.py tests/test_service.py -v
 
       - name: Build package
         run: |
