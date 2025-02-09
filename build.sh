@@ -29,7 +29,7 @@ cp -R "dist/FileService.app" "${PKG_ROOT}/Applications/"
 pkgbuild \
     --root "${PKG_ROOT}" \
     --scripts scripts \
-    --identifier com.yourcompany.fileservice \
+    --identifier com.macos.fileservice \
     --version 1.0.0 \
     --install-location "/" \
     FileService.pkg
