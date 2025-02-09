@@ -14,11 +14,6 @@ OPTIONS = {
     'includes': [
         'pathlib',
         'concurrent.futures',
-        'grpc',
-        'jinja2',
-        'protobuf',
-        'grpc_reflection',
-        'grpc_health',
     ],
     'plist': {
         'LSUIElement': True,  # Don't show in dock
@@ -45,8 +40,6 @@ setup(
         'grpcio-tools>=1.60.0',
         'grpcio-testing>=1.60.0',
         'watchdog>=3.0.0',
-        'jinja2',
-        'protobuf>=4.24.0',
     ],
     python_requires='>=3.8',
 )
