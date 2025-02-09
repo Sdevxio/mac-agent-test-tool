@@ -15,7 +15,7 @@ pip install -r requirements.txt
 python setup.py py2app
 
 # Copy launchd plist to Resources
-cp com.yourcompany.fileservice.plist "dist/FileService.app/Contents/Resources/"
+cp com.macos.fileservice.plist "dist/FileService.app/Contents/Resources/"
 
 # Ensure scripts are executable
 chmod +x scripts/postinstall

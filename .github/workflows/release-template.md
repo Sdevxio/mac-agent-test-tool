@@ -27,11 +27,11 @@ After installation:
 To uninstall:
 1. Stop the service:
    ```bash
-   sudo launchctl unload /Library/LaunchDaemons/com.yourcompany.fileservice.plist
+   sudo launchctl unload /Library/LaunchDaemons/com.macos.fileservice.plist
    ```
 2. Remove files:
    ```bash
    sudo rm -rf /Applications/FileService.app
-   sudo rm /Library/LaunchDaemons/com.yourcompany.fileservice.plist
+   sudo rm /Library/LaunchDaemons/com.macos.fileservice.plist
    sudo rm -rf /var/log/fileservice
    ```
