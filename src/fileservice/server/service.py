@@ -6,9 +6,9 @@ from typing import Optional, Iterator, BinaryIO
 
 import grpc
 
-# Import generated proto files
-from .. import file_service_pb2 as pb2
-from .. import file_service_pb2_grpc as pb2_grpc
+# Import generated proto files (relative imports)
+from fileservice import file_service_pb2 as pb2
+from fileservice import file_service_pb2_grpc as pb2_grpc
 
 logger = logging.getLogger(__name__)
 

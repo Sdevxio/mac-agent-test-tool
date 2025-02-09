@@ -26,11 +26,7 @@ jobs:
 
       - name: Generate Proto files
         run: |
-          python -m grpc_tools.protoc \
-            --proto_path=proto \
-            --python_out=src/fileservice \
-            --grpc_python_out=src/fileservice \
-            proto/file_service.proto
+          python generate_protos.py
 
       - name: Install package in development mode
         run: |
