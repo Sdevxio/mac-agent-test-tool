@@ -113,6 +113,7 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
             logger.error(f"Error getting metadata for {file_path}: {e}")
             return None
 
+
     def IsFileExists(
             self,
             request: pb2.FileRequest,
@@ -133,6 +134,8 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
             logger.info(f"Checking existence of file: {file_path}")
 
             exists = os.path.exists(file_path)
+
+            # Only get metadata if file exists and metadata is requested
             metadata = None
 
             if exists and request.include_metadata:
@@ -140,7 +143,8 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
 
             return pb2.FileExistsResponse(
                 exists=exists,
-                metadata=metadata if exists else None
+                metadata=metadata,
+                error=""
             )
 
         except Exception as e:
@@ -244,6 +248,7 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
             if request.include_metadata:
                 metadata = self._get_file_metadata(request.file_path)
 
+            first_chunk = True
             with open(request.file_path, 'rb') as file:
                 total_sent = 0
 
@@ -255,22 +260,21 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
                     total_sent += len(chunk)
                     progress = (total_sent / file_size) * 100 if file_size > 0 else 100
 
-                    # Only send metadata with first chunk
-                    current_metadata = metadata if total_sent == len(chunk) else None
-
                     yield pb2.FileChunkResponse(
                         content=chunk,
                         offset=total_sent,
                         is_last=False,
-                        metadata=current_metadata,
+                        metadata=metadata if first_chunk else None,
                         progress=progress
                     )
+                    first_chunk = False
 
                 # Send final chunk to indicate completion
                 yield pb2.FileChunkResponse(
                     content=b"",
                     offset=total_sent,
                     is_last=True,
+                    metadata=None,
                     progress=100.0
                 )
 
@@ -279,7 +283,8 @@ class FileServiceServicer(pb2_grpc.FileServiceServicer):
             logger.error(error_msg)
             yield pb2.FileChunkResponse(
                 error=error_msg,
-                is_last=True
+                is_last=True,
+                metadata=None
             )
 
     def _optimize_chunk_size(self, file_size: int, requested_size: int = None) -> int:

@@ -1,4 +1,5 @@
 import logging
+import socket
 from concurrent import futures
 from typing import Optional
 
@@ -15,13 +16,7 @@ class FileServer:
     """Base server class that handles port management and server lifecycle."""
 
     def __init__(self, max_workers: int = 10, ports: list[int] = None):
-        """
-        Initialize the FileServer.
-
-        Args:
-            max_workers: Maximum number of worker threads
-            ports: Optional list of ports to try
-        """
+        """Initialize the FileServer."""
         self.max_workers = max_workers
         self.port_manager = PortManager(ports)
         self._server: Optional[grpc.Server] = None
@@ -29,14 +24,8 @@ class FileServer:
         self._service = FileServiceServicer()
 
     def start(self) -> bool:
-        """
-        Start the gRPC server on an available port.
-
-        Returns:
-            bool: True if server started successfully, False otherwise
-        """
+        """Start the gRPC server on an available port."""
         try:
-            # Create the gRPC server
             self._server = grpc.server(
                 futures.ThreadPoolExecutor(max_workers=self.max_workers)
             )
@@ -51,16 +40,17 @@ class FileServer:
                 logger.error("Could not find available port")
                 return False
 
-            # Try to start the server
+            self._port = port
             server_address = f'[::]:{port}'
+
             try:
                 self._server.add_insecure_port(server_address)
                 self._server.start()
-                self._port = port
-                logger.info(f"Server started successfully on port {port}")
+                logger.info(f"Server started on port {port}")
                 return True
             except Exception as e:
                 logger.error(f"Failed to start server: {e}")
+                self._port = None
                 return False
 
         except Exception as e:
@@ -68,27 +58,24 @@ class FileServer:
             return False
 
     def stop(self, grace: Optional[float] = None) -> None:
-        """
-        Stop the server gracefully.
-
-        Args:
-            grace: Optional grace period in seconds
-        """
+        """Stop the server gracefully."""
         if self._server:
             logger.info("Stopping server...")
             self._server.stop(grace)
-            self.port_manager.release_port()
+
+            # Explicitly close the port
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.bind(('localhost', self._port))
+            except:
+                pass
+
             self._server = None
             self._port = None
             logger.info("Server stopped")
 
     def wait_for_termination(self, timeout: Optional[float] = None) -> None:
-        """
-        Wait for the server to terminate.
-
-        Args:
-            timeout: Optional timeout in seconds
-        """
+        """Wait for the server to terminate."""
         if self._server:
             self._server.wait_for_termination(timeout)
 
