@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-import google
+import google.protobuf
 from fileservice.server import FileServer
 # Ensure the google.protobuf module is correctly added to sys.path
 sys.path.insert(0, google.protobuf.__path__[0])
