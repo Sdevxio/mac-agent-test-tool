@@ -8,17 +8,15 @@ DATA_FILES = []
 OPTIONS = {
     'argv_emulation': True,
     'packages': [
-        'grpc',  # Your core dependency
-        'google.protobuf',  # Indirect dependency via grpcio-tools
+        'grpc',
+        'google.protobuf',  # Include protobuf explicitly
         'fileservice',
-        'concurrent.futures',
     ],
     'includes': [
-        'grpc',
+        'google',
         'google.protobuf',
+        'grpc',
         'pathlib',
-        'os',
-        'logging',
     ],
     'plist': {
         'LSUIElement': True,
