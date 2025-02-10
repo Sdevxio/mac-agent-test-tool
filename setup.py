@@ -17,6 +17,7 @@ OPTIONS = {
         'google.protobuf',
         'grpc',
         'pathlib',
+        'concurrent.futures',
     ],
     'plist': {
         'LSUIElement': True,
@@ -26,7 +27,6 @@ OPTIONS = {
         'CFBundleVersion': '1.0.0',
     }
 }
-
 
 setup(
     name='FileService',

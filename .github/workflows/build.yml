@@ -40,13 +40,23 @@ jobs:
             --grpc_python_out=src/fileservice \
             proto/file_service.proto
 
-      - name: Check package directory structure
-        run: find /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages/ -name "google"
+      - name: Check and copy google.protobuf package
+        run: |
+          GOOGLE_PROTOBUF_PATH=$(python -c "import google.protobuf; print(google.protobuf.__path__[0])")
+          echo "Google Protobuf Path: $GOOGLE_PROTOBUF_PATH"
+          mkdir -p dist/FileService.app/Contents/Resources/lib/python3.11/google/
+          cp -R $GOOGLE_PROTOBUF_PATH dist/FileService.app/Contents/Resources/lib/python3.11/google/protobuf
+
+      - name: Debug installed packages and paths
+        run: |
+          python -m pip list
+          python -c "import google.protobuf; print(google.__path__)"
+          python -c "import grpc; print(grpc.__version__)"
 
       - name: Build package
         run: |
           chmod +x build.sh
-          ./build.sh
+          ./build.sh 
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
