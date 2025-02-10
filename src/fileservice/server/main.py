@@ -1,17 +1,21 @@
 import logging
 import signal
 import sys
+from pathlib import Path
 from typing import Optional
 
 from fileservice.server import FileServer
 
-# Configure logging
+# Configure detailed logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+logger.info("Starting FileService app...")
 
 
 def handle_shutdown(signum: int, frame, server: Optional[FileServer] = None) -> None:
@@ -27,6 +31,13 @@ def handle_shutdown(signum: int, frame, server: Optional[FileServer] = None) -> 
     if server:
         server.stop(grace=2.0)
     sys.exit(0)
+
+
+def get_base_path() -> Path:
+    """Get the base path for resources and data."""
+    if hasattr(sys, '_MEIPASS'):  # Used when running from .app
+        return Path(sys._MEIPASS)
+    return Path(__file__).parent
 
 
 def main() -> None:
@@ -51,6 +62,8 @@ def main() -> None:
     finally:
         server.stop(grace=2.0)
 
+    BASE_PATH = get_base_path()
+    logger.info(f"Application base path: {BASE_PATH}")
 
 if __name__ == '__main__':
     main()

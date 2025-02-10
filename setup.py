@@ -10,14 +10,20 @@ OPTIONS = {
     'packages': [
         'grpc',
         'fileservice',
+        'google.protobuf',  # Ensure protobuf files are included
+        'concurrent.futures',  # Thread pool
     ],
     'includes': [
         'pathlib',
-        'concurrent.futures',
+        'os',
+        'logging',
+        'grpc',
+        'grpc_tools',
+        'google.protobuf',
     ],
     'plist': {
-        'LSUIElement': True,  # Don't show in dock
-        'LSBackgroundOnly': True,  # Background-only app
+        'LSUIElement': True,
+        'LSBackgroundOnly': True,
         'CFBundleName': 'FileService',
         'CFBundleDisplayName': 'File Service',
         'CFBundleIdentifier': 'com.macos.fileservice',
