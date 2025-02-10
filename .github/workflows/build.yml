@@ -11,7 +11,8 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,6 +25,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install py2app
+
+      - name: Debug Python environment
+        run: |
+          python -m pip list  # Log installed packages
+          python -c "import google.protobuf; print(google.__path__)" || echo "google.protobuf not found"
+          python -c "import grpc; print(grpc.__version__)" || echo "grpc not found"
 
       - name: Generate Proto files
         run: |
