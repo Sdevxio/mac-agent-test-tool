@@ -8,29 +8,27 @@ DATA_FILES = []
 OPTIONS = {
     'argv_emulation': True,
     'packages': [
-        'grpc',
+        'grpc',  # Your core dependency
+        'google.protobuf',  # Indirect dependency via grpcio-tools
         'fileservice',
-        'google.protobuf',  # Ensure protobuf files are included
-        'concurrent.futures',  # Thread pool
+        'concurrent.futures',
     ],
     'includes': [
+        'grpc',
+        'google.protobuf',
         'pathlib',
         'os',
         'logging',
-        'grpc',
-        'grpc_tools',
-        'google.protobuf',
     ],
     'plist': {
         'LSUIElement': True,
         'LSBackgroundOnly': True,
         'CFBundleName': 'FileService',
-        'CFBundleDisplayName': 'File Service',
         'CFBundleIdentifier': 'com.macos.fileservice',
         'CFBundleVersion': '1.0.0',
-        'CFBundleShortVersionString': '1.0.0',
     }
 }
+
 
 setup(
     name='FileService',
