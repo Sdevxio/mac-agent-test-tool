@@ -11,15 +11,18 @@ rm -rf build dist
 # Install required packages
 pip install -r requirements.txt
 
-# Debug dependencies (new step)
+# Debug dependencies
 echo "Checking installed packages..."
 pip list
 
 echo "Verifying google.protobuf module path..."
 python -c "import google.protobuf; print('Protobuf path:', google.protobuf.__path__)" || echo "google.protobuf not found"
 
+# Add verbosity for py2app build
+export PY2APP_VERBOSE=3  # Verbosity level for py2app (higher values give more detail)
+
 # Build the .app bundle
-python setup.py py2app --debug  # Add --debug to provide detailed output during build
+python setup.py py2app
 
 # Copy launchd plist to Resources
 cp com.macos.fileservice.plist "dist/FileService.app/Contents/Resources/"
